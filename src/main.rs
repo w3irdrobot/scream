@@ -44,7 +44,7 @@ fn app(cx: Scope) -> Element {
         div {
             id: "main",
             h1 {
-                "Scream into the Void2"
+                "Scream into the Void"
             }
             h2 {
                 "What is this?"
