@@ -1,3 +1,5 @@
+#[cfg(target_arch = "wasm32")]
+use core::time::Duration;
 use dioxus::prelude::*;
 use log::debug;
 use nostr_sdk::prelude::*;
@@ -30,13 +32,25 @@ async fn scream_into_the_void(content: &str) -> Result<String> {
 
 fn app(cx: Scope) -> Element {
     let content: &UseState<String> = use_state(cx, String::new);
+    let sending = use_state(cx, || false);
+    let show_message = use_state(cx, || false);
     let scream = move |_| {
-        to_owned![content];
+        to_owned![content, sending, show_message];
         async move {
+            sending.set(true);
             let event_id = scream_into_the_void(&content.current())
                 .await
                 .expect("scream error");
+            sending.set(false);
+            content.set(String::from(""));
             debug!("event_id: {}", event_id);
+
+            show_message.set(true);
+            #[cfg(not(target_arch = "wasm32"))]
+            tokio::time::sleep(Duration::from_secs(4)).await;
+            #[cfg(target_arch = "wasm32")]
+            gloo_timers::future::sleep(Duration::from_secs(4)).await;
+            show_message.set(false);
         }
     };
 
@@ -61,12 +75,17 @@ fn app(cx: Scope) -> Element {
                 }
                 ", and sends the note."
             }
+            if **show_message {
+                rsx!(p { strong {"Your message has been sent. Feel the catharsis."}})
+            }
             textarea{
+                value: "{content}",
+                disabled: "{sending}",
                 oninput: |evt| content.set(evt.value.clone()),
-                "{content}"
             }
             button{
                 onmouseup: scream,
+                disabled: "{sending}",
                 "Submit"
             }
             p {

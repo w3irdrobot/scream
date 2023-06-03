@@ -1,18 +1,17 @@
 [package]
-authors = [" <>"]
+authors = ["w3irdrobot <rob@w3ird.tech>"]
 edition = "2021"
 name = "scream"
 version = "0.1.0"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
 [dependencies]
-dioxus = "0.3"
-dioxus-web = "0.3"
-
-log = "0.4.6"
-
-# WebAssembly Debug
 console_error_panic_hook = "0.1.7"
+dioxus = "0.3"
+# hardcoded to avoid https://github.com/DioxusLabs/dioxus/issues/944
+# until it's fixed
+dioxus-web = "0.3.2"
+gloo-timers = { version = "0.2.6", features = ["futures"] }
+log = "0.4.6"
 nostr-sdk = "0.22.0"
+tokio = { version = "1.28.2", features = ["time", "rt"] }
 wasm-logger = "0.2.0"
